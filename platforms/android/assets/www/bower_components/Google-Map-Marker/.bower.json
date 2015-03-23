@@ -1,0 +1,14 @@
+{
+  "name": "Google-Map-Marker",
+  "homepage": "https://github.com/Lucien-Consulting/Google-Map-Marker",
+  "_release": "95654e35fa",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "95654e35fa300e7120fc7a1398f7cb65ae6f9cc6"
+  },
+  "_source": "git://github.com/Lucien-Consulting/Google-Map-Marker.git",
+  "_target": "*",
+  "_originalSource": "Lucien-Consulting/Google-Map-Marker",
+  "_direct": true
+}

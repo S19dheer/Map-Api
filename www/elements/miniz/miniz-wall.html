@@ -1,0 +1,296 @@
+<!-- <!doctype html> -->
+<!--
+Copyright 2014 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!-- <html> -->
+
+<!-- <head -->
+<!-- <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <title>&lt;google-youtube-video-wall&gt; Demo</title> -->
+<!-- <script src="/bower_components/webcomponentsjs/webcomponents.min.js"></script> -->
+<!--<script src="https://www.youtube.com/iframe_api"></script>-->
+
+   
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/core-label/core-label.html">
+<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../../bower_components/pvc-globals/pvc-globals.html">
+
+<link rel="import" href="google-youtube-video-wall.html">
+<!-- <link rel="import" href="clip-button.html"> -->
+<!-- </head> -->
+
+
+
+
+<!-- <body unresolved> -->
+<!-- channelId="UC_x5XG1OV2P6uZZ5FSM9Ttw"-->
+
+
+
+
+
+<!-- <div id="starttime"></div>
+    <input type="button" value="start here" id="starttimebtn" style="position: relative;">
+    <div id="endtime"></div>
+    <input type="button" value="end here" id="endtimebtn" style="position: relative;"> -->
+
+<polymer-element name="miniz-wall">
+    <template>
+        <google-youtube-video-wall fit apiKey="AIzaSyAXqZrskeQRPGqnPN1Y8t-Ry7wjBDs0JEU" wallTitle="Google Developers Videos" q="" showSearch>
+        </google-youtube-video-wall>
+    </template>
+    <script>
+    Polymer('miniz-wall', {});
+    </script>
+</polymer-element>
+
+<polymer-element name="youtube-clip" extends="google-youtube">
+    <template>
+        <div>
+            <shadow></shadow>
+        </div>
+        
+        <div style="margin-top: 65px;">
+        <pvc-globals values="{{globals}}"></pvc-globals>
+
+            <paper-button disabled="" role="button" aria-disabled="" style="pointer-events: none;display:inline-block;">
+                <core-label>Select Clip:</core-label>
+            </paper-button>
+            <paper-button style="display:{{startvideoclip}}" on-Tap="{{handleStartclip}}"> Start clip</paper-button>
+            <paper-button style="display:{{endvideoclip}}" on-Tap="{{handleEndclip}}"> End clip</paper-button>
+            <paper-button style="display:{{resetvideoclip}}" on-Tap="{{handleResetclip}}"> reset clip</paper-button>
+            <paper-button style="display:{{sharevideoclip}}" on-Tap="{{handleShareclip}}"> share clip</paper-button>
+        </div>
+        <div style="margin-left: 15px;">
+            <label for="timevalue">Duration</label>
+            <input type="text" id="timevalue" placeholder='value shoud be display.' style="margin-left: 30px;">
+            <!-- <button-event></button-event> -->
+        </div>
+        <!-- <div>
+            <firebase-element id="base" location="https://amber-heat-1751.firebaseio.com/miniz" data="{{data}}" keys="{{keys}}">
+            </firebase-element>
+            <!-- <template repeat="{{key in keys}}">
+                    <p>{{key}}:{{data[key]}}</p>
+                </template> 
+        </div> -->
+        <template if="{{ajaxflag}}">
+        <core-ajax auto url="https://localhost:3000/api/minizvideos" 
+        method="POST"
+        params="{{videodatas}}" 
+        contentType="application/json" handleAs="json"
+        body='{{videodatas}}'
+         headers='{"X-Requested-With": "XMLHttpRequest"}' 
+         on-core-responce="{{handleResponse}}" on-core-error="{{handleError}}">
+        </core-ajax>
+        </template>
+
+
+    </template>
+
+    <script>
+    Polymer('youtube-clip', {
+        starttime: null,
+        endtime: null,
+        clipUrl: null,
+        ajaxflag:false,
+        startvideoclip: "inline-block",
+        endvideoclip: 'none',
+        resetvideoclip: 'none',
+        sharevideoclip: 'none',
+        videodatas:null,
+        mvalue:null,
+        
+
+
+
+
+        apiLoad: function() {
+            // Establish some defaults. Attributes set on the google-youtube element
+            // can override defaults, or specify additional player parameters. See
+            // https://developers.google.com/youtube/player_parameters
+            var playerVars = {
+                playsinline: 1,
+                controls: 2,
+                autohide: 1,
+                // This will (intentionally) be overwritten if this.attributes['autoplay'] is set.
+                autoplay: this.autoplay
+            };
+
+            if (this.chromeless) {
+                playerVars.controls = 0;
+                playerVars.modestbranding = 1;
+                playerVars.showinfo = 0;
+                // Disable annotations.
+                playerVars.iv_load_policy = 3;
+                // Disable related videos on the end screen.
+                playerVars.rel = 0;
+            }
+
+            for (var i = 0; i < this.attributes.length; i++) {
+                var attribute = this.attributes[i];
+                playerVars[attribute.nodeName] = attribute.value;
+            }
+
+
+            this.player = new YT.Player(this.$.player, {
+                videoId: this.videoid,
+                width: '100%',
+                height: '100%',
+                playerVars: playerVars,
+                events: {
+                    onReady: function(e) {
+                        if (this.pendingVideoId && this.pendingVideoId != this.videoid) {
+                            this.player.cueVideoById(this.pendingVideoId);
+                            this.pendingVideoId = '';
+                        }
+
+                        this.fire('google-youtube-ready', e);
+                    }.bind(this),
+                    onStateChange: function(e) {
+                        this.state = e.data;
+
+                        // The YouTube Player API only exposes playback data about a video once
+                        // playback has begun.
+                        if (this.state == 1) {
+                            // After playback has begun, play() can always be used to resume playback if the video is paused.
+                            this.playsupported = true;
+
+                            this.duration = this.player.getDuration();
+                            this.durationformatted = this.toHHMMSS(this.duration);
+
+                            if (!this.updatePlaybackStatsInterval) {
+                                this.updatePlaybackStatsInterval = setInterval(this.updatePlaybackStats.bind(this), 1000);
+                            }
+                        } else {
+                            // We only need to update the stats if the video is playing.
+                            if (this.updatePlaybackStatsInterval) {
+                                clearInterval(this.updatePlaybackStatsInterval);
+                                this.updatePlaybackStatsInterval = null;
+                            }
+                        }
+
+                        this.fire('google-youtube-state-change', e);
+                    }.bind(this),
+
+                    onError: function(e) {
+                        // Set the player state to 0 ('ended'), since playback will have stopped.
+                        this.state = 0;
+
+                        this.fire('google-youtube-error', e);
+                    }.bind(this)
+                }
+            });
+
+
+        },
+        handleStartclip: function() {
+            debugger;
+            if (this.startvideoclip === 'inline-block') {
+                this.startvideoclip = 'none';
+                this.sharevideoclip = 'none';
+                this.endvideoclip = 'inline-block';
+                this.resetvideoclip = 'inline-block';
+                this.starttime = this.player.getCurrentTime();
+                console.log(this.player.getCurrentTime());
+            }
+
+        },
+        handleEndclip: function() {
+            if (this.endvideoclip === 'inline-block') {
+                this.sharevideoclip = 'inline-block';
+                this.endvideoclip = 'none';
+                this.startvideoclip = 'none';
+                this.resetvideoclip = 'inline-block';
+                this.endtime = this.player.getCurrentTime();
+                console.log(this.player.getCurrentTime());
+            }
+
+        },
+        handleResetclip: function() {
+            if (this.resetvideoclip === 'inline-block') {
+                this.resetvideoclip = 'none';
+                this.endvideoclip = 'none';
+                this.sharevideoclip = 'none';
+                this.startvideoclip = 'inline-block';
+
+            }
+
+        },
+        handleShareclip: function(value) {
+            this.mvalue=value;
+            this.ajaxflag=true;
+            if (this.sharevideoclip === 'inline-block') {
+                this.sharevideoclip = 'none';
+                this.resetvideoclip = 'none';
+                this.endvideoclip = 'none';
+                this.startvideoclip = 'inline-block';
+                debugger;
+                if (this.starttime && this.endtime) {
+
+                    this.clipUrl = "https://www.youtube.com/embed/" + this.videoid + "?start=" + this.starttime.toFixed() + "&end=" + this.endtime.toFixed();
+                    // this.$.base.push(
+
+
+
+                    this.videodatas =JSON.stringify({
+
+  
+                        "minizstartclip": this.starttime.toFixed(),
+                        "minizendclip": this.endtime.toFixed(),
+                        "minizclipurl": this.clipUrl,
+                        "minizvideoId": this.videoid,
+                        "minizauthor": this.player.getVideoData().author,
+                        "miniztitle": this.player.getVideoData().title,
+                        "minizvideothumbnail" : this.globals._selectedVideoThumbnail,
+                        "minizvideodescription" : this.globals._selectedVideoDescription
+                    });
+
+
+                    
+                    console.log("duratin: start\n " + this.starttime.toFixed() + " end: \n " + this.endtime.toFixed() + " " + this.clipUrl);
+                    
+
+                } else {
+                    console.log('please select the video!');
+                }
+
+
+            }
+
+        },
+        handleResponse:function(e){
+           var response =e.detail.response;
+           console.log(response);
+
+        },
+        handleError:function(){
+            console.log("eroor");
+
+        }
+    });
+    </script>
+</polymer-element>
+
+
+
+
+
+
+
+

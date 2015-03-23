@@ -1,0 +1,26 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+   <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
+    <!-- <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script> -->
+    <link rel="import" href="bower_components/polymer/polymer.html">
+  <link rel="import" href="bower_components/app-router/app-router.html">
+</head>
+
+
+
+<body unresolved>
+
+    
+    <app-router>
+    <app-route path="/minizwall" import="/elements/miniz/miniz-wall.html"></app-route>
+    
+    <app-route path="/dashboard" import="/elements/miniz/dash-board.html"></app-route>
+    
+    <script>
+     document.querySelector('app-router').go('/minizwall');
+   //document.querySelector('app-router').go('/dashboard');
+</script>
+</body>
+
+</html>

@@ -1,0 +1,323 @@
+<!-- <!DOCTYPE html>
+<html>
+#{"where":{"miniztitle": {"nlike":"Taylor Sing a Duet!"}}}
+#http://localhost:3000/api/minizvideos?filter{where:{miniztitle:%22Zac%20Efron%22}}
+<head> -->
+    <!-- <link rel="import" href="/lib/polymer/polymer.html"> -->
+    <!--script src="/bower_components/webcomponentsjs/webcomponents.min.js"></script-->
+    <link rel="import" href="../../bower_components/core-header-panel/core-header-panel.html">
+    <link rel="import" href="../../bower_components/core-toolbar/core-toolbar.html">
+    <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+    <link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+    <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+    <link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+    <link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+
+    <style>
+    html,
+    body {
+        position: relative;
+        width: 100%;
+        margin: 0;
+        background-color: #E5E5E5;
+        /*font-family: 'RobotoDraft', sans-serif;*/
+    }
+    core-header-panel {
+        height: 100%;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    core-toolbar {
+        background: #03a9f4;
+        color: white;
+    }
+    .miniz-container > paper-ripple {
+        z-index: 1;
+    }
+    .video-container > img {
+        position: relative;
+        width: 100%;
+        max-height: 180px;
+        display: block;
+        overflow: hidden;
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+    }
+    </style>
+<!-- </head> -->
+
+<!-- <body> -->
+    <polymer-element name="dash-board" attributs="id showSearch playlistId">
+        <template>
+            <link rel="stylesheet" href="dashboard.css">
+            <core-animated-pages fit
+                         id="corepage"
+                         transitions="hero-transition cross-fade"
+                         selected="0"
+                         on-core-animated-pages-transition-end="{{handleTransitionEnd}}">
+
+                <section>
+                    <core-header-panel id="resultspage" fit cross-fade_sender 
+                    on-scroll="{{handleResultsScroll}}"
+                    style="height:100vh;">
+
+                        <core-toolbar class="{{ {'medium-tall': narrow && showSearch} | tokenList }}">
+                            <header flex>
+                                <content></content>
+                                <!-- {{wallTitle}} -->
+                                <a href="/home.html#/dashboard" style="color: #ffffff; text-decoration: blink;">
+                                Miniz Video Dashboard
+                                </a>
+                            </header>
+                            <header flex>
+                            <content></content>
+                            <a href="/home.html#/minizwall" style="color: #ffffff; text-decoration: blink;">Miniz Video</a>
+                            </header>
+
+                            <template if="{{showSearch}}">
+                                <core-icon icon="search" class="{{ {bottom: narrow} | tokenList }}"></core-icon>
+                                <paper-input class="{{ {bottom: narrow} | tokenList }}" placeholder="Search for..." value="{{q}}">
+                                </paper-input>
+                            </template>
+                        </core-toolbar>
+                        
+                        <div id="searchresults" class="{{ {veryNarrow: veryNarrow} | tokenList }}" hero-p>
+                            <template if="{{_apiError}}">
+                                <h1>Oops! The following error occurred:</h1>
+                                <pre>{{_apiError}}</pre>
+                            </template>
+
+                            <template if="{{keys != null && keys.length == 0}}">
+                                <h1>Sorry, no videos were found!</h1>
+                            </template>
+
+                            <template repeat="{{video in _video}}">
+
+                                <div class="video-container"
+                                data-video-id="{{video.minizvideoId}}" data-video-title="{{video.miniztitle}}"  data-video-thumbnail="{{video.minizvideothumbnail}}"
+                                data-video-description="{{video.minizvideodescription}}" data-video-clipurl="{{video.minizclipurl}}"
+                                 on-click="{{handleItemSelected}}">
+
+                                    <paper-ripple fit></paper-ripple>
+                                    <img src="{{video.minizvideothumbnail}}">
+                                    <div class="text-container">
+                                        <h1>{{video.miniztitle}}</h1>
+
+                                        <p>{{video.minizvideodescription}}</p>
+                                        
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </core-header-panel>
+                </section>
+                <section id="playersection">
+
+                <core-header-panel id="resultspage" fit cross-fade on-scroll="{{handleResultsScroll}}"
+                    style="height:800px;">
+
+                        <core-toolbar class="{{ {'medium-tall': narrow && showSearch} | tokenList }}">
+                            <header flex>
+                                <content></content>
+                                <!-- {{wallTitle}} -->
+                                <a href="/minizvideo.html#/dashboard" style="color: #ffffff; text-decoration: blink;">
+                                Miniz Video Dashboard
+                                </a>
+                            </header>
+                            <header flex>
+                            <a href="/minizvideo.html#/minizwall" style="color: #ffffff; text-decoration: blink;">Miniz Video</a>
+                            </header>
+                            </core-toolbar>
+
+
+                    <div id="playerpage" fit cross-fade>
+                        <template if="{{_selectedVideoId}}">
+                            <paper-icon-button id="close-button" icon="close" fill on-tap="{{handlePlayerClose}}">
+                            </paper-icon-button>
+
+                            <div>
+                                <youtube-clip  id="youtubeplayer" videoid="{{_selectedVideoId}}" playsupported="{{playSupported}}" chromeless width="100%" height="100%" currenttime="{{currentTime}}" currenttimeformatted="{{currentTimeFormatted}}" fractionloaded="{{fractionLoaded}}" state="{{state}}" duration="{{duration}}" durationformatted="{{durationFormatted}}" hero-id="{{_selectedVideoId}}" hero >
+                                </youtube-clip> 
+                            </div>
+                        </template>
+
+                        <paper-slider id="seekbar" min="0" max="{{duration}}" value="{{currentTime}}" secondaryProgress="{{ fractionLoaded * duration }}" on-change="{{handleSeekTo}}" disabled?="{{duration == 0}}">
+                        </paper-slider>
+
+                        <core-toolbar id="playercontrols" class="{{ {'medium-tall': narrow} | tokenList }}">
+                            <template if="{{state == 1 || state == 3}}">
+                                <paper-fab class="{{ {bottom: narrow} | tokenList }}" mini icon="av:pause" on-tap="{{handlePause}}">
+                                </paper-fab>
+                            </template>
+
+                            <template if="{{state != 1 && state != 3 && playSupported}}">
+                                <paper-fab class="{{ {bottom: narrow} | tokenList }}" mini icon="av:play-arrow" on-tap="{{handlePlay}}">
+                                </paper-fab>
+                            </template>
+
+                            <p flex class="video-title">{{_selectedVideoTitle}}</p>
+
+                            <p class="{{ {bottom: narrow} | tokenList }}">
+                                <template if="{{duration != 0 && !_selectedVideoIsLive}}">
+                                    {{currentTimeFormatted}}/{{durationFormatted}}
+                                </template>
+
+                                <template if="{{_selectedVideoIsLive}}">
+                                    Live Broadcast
+                                </template>
+                            </p>
+                        </core-toolbar>
+                    </div>
+                   </core-header-panel>
+                </section>
+            </core-animated-pages>
+             <!-- <template if="{{q}}">  -->
+                <core-ajax auto url="https://localhost:3000/api/minizvideos"
+                params ='{"filter[where][or][0][miniztitle][like]":"{{q}}",
+                "filter[where][or][1][minizvideodescription][like]":"{{q}}"}'
+                method="GET"
+                handleAs="json"
+                on-core-response="{{handleMongoResponse}}"
+                on-core-error="{{handleMongoError}}">
+                </core-ajax>            
+            <!-- </template> -->
+<!-- http://localhost:3000/api/minizvideos?filter{where:{miniztitle:%22Zac%20Efron%22}} -->
+
+            <!-- <core-ajax auto id="titleajax" url="http://localhost:3000/api/minizvideos" 
+                    handleAs="json" 
+                     method="GET"
+                     on-core-response="{{handleMinizPlaylistResponse}}" 
+                     on-core-error="{{handleYouTubeApiError}}">
+                     </core-ajax>
+ -->
+            
+        <!-- <core-ajax auto url="https://amber-heat-1751.firebaseio.com/miniz" on-core-response="{{handleFirebaseResponse}}" on-core-error="{{handleFirebaseError}}">
+        </core-ajax> -->
+
+
+
+        </template>
+        <script>
+        Polymer('dash-board', {
+            _selectedVideoId: 'mN7IAaRdi_k',
+            _selectedVideoTitle:'',
+            _selectedVideoIsLive: false,
+            _nextPageToken: '',
+            _videoUrl:'',
+            showSearch:true,
+            _video:[],
+            minizresponsedata:'',
+            q:'',
+
+            ready: function() {},
+
+        handleItemSelected: function(e) {
+            // Wait before starting the transition to the play page to give the paper-ripple effect time to animate.
+            debugger;
+            this.async(function(args) {
+                this._selectedVideoTitle = args.title;
+                this._selectedVideoId = args.videoId;
+                this._videoUrl = args.clipurl;
+                this._selectedVideoIsLive = args.isLive === 'true';
+                this.$.corepage.selected = 1;
+            }, {
+                title: e.target.parentNode.dataset.videoTitle,
+                videoId: e.target.parentNode.dataset.videoId,
+                clipurl : e.target.parentNode.dataset.videoClipurl,
+                isLive: false
+            }, 150);
+
+           /* for(var i=0;i<_video.length;i++){
+
+            }*/
+
+        },
+        handlePlay: function() {
+            debugger;
+            this.shadowRoot.querySelector('::shadow iframe').src = this._videoUrl;
+            this.shadowRoot.querySelector('#youtubeplayer').play();
+        },
+
+        handlePause: function() {
+            this.shadowRoot.querySelector('#youtubeplayer').pause();
+        },
+
+        handleSeekTo: function(e) {
+            this.shadowRoot.querySelector('#youtubeplayer').seekTo(this.$.seekbar.immediateValue);
+        },
+        /*handleTransitionEnd: function() {
+            // If we've transitioned from the player to the results page, reset _selectedVideoId
+            // so that the next <google-youtube> player element is "fresh".
+            // We can't reset it prior to the transition since it will mess up the hero-id mapping.
+            if (this.$.corepage.selected == 0) {
+                this._selectedVideoId = '';
+            }
+        },*/
+
+        // observe:{
+        // 	'q':function(){
+
+
+        // 	}
+        // },
+
+        handleResultsScroll: function(e) {
+          // 320 is the height of the video container, so this check is roughly equivalent to
+          // "is the bottom of the scroll area on the second-to-last row?"
+          if ((e.detail.target.scrollTop + e.detail.target.clientHeight + 320) >= e.detail.target.scrollHeight) {
+            //this.async(this.updateYouTubeApiParams);
+          }
+        },
+
+        handlePlayerClose: function() {
+            // Wait before starting the transition to the results page to give the paper-ripple effect time to animate.
+            this.async(function() {
+                this.shadowRoot.querySelector('#youtubeplayer').pause();
+                this.$.corepage.selected = 0;
+                this.playSupported = null;
+
+                this.state = -1;
+                this.fractionLoaded = 0;
+            }, null, 75);
+            this.shadowRoot.querySelector('::shadow iframe').src = '';
+        },
+
+        handleMinizPlaylistResponse: function(e) {
+           // debugger;
+            
+        },
+
+        handleMongoResponse : function(e){
+            console.log(e.detail.response);
+            this._apiError = '';
+            this._video=[];
+            var response = e.detail.response;
+            for(var i=0;i<response.length;i++)
+            {
+
+                    this._video.push(response[i]);
+                    
+               
+            }
+
+        },
+
+        handleMongoError : function(e){
+            console.log(e.detail.error);
+
+        },
+
+        playlistIdChange : function(){
+            /*if(this.playlistId){
+                this.$.titleajax.go();
+            }*/
+        }
+
+        });
+        </script>
+    </polymer-element>
+    <!-- <dash-board></dash-board> -->
+<!-- </body> -->
+
+<!-- </html> -->

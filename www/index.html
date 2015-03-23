@@ -1,174 +1,155 @@
-<!-- Author: Eric Bidelman <@ebidel> -->
 <!doctype html>
-<html>
+<html lang="">
+
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>poly foo</title>
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <!-- Fallback for manifest.json add to homescreen (Chrome Android) -->
-  <meta name="mobile-web-app-capable" content="yes">
+  <!-- build:css styles/main.css -->
+  <!--<link rel="stylesheet" href="styles/main.css">-->
+  <!-- endbuild-->
 
-  <meta name="apple-mobile-web-app-status-bar-style" content="#e51c23">
-  <meta name="theme-color" content="#e51c23">
-  <meta name="msapplication-TileColor" content="#e51c23">
-  <meta name="msapplication-tap-highlight" content="no">
-  <title>Polymer Mail</title>
+  <!-- build:js bower_components/webcomponentsjs/webcomponents.min.js -->
+  <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
+  <!-- endbuild -->
 
-  <link rel="manifest" href="manifest.json">
-
-  <!-- Note: webcomponent.js is only needed in non-Chrome 36 browsers. Included here for portability. -->
-  <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
-    <script type="text/javascript" src="cordova.js"></script>
-    <!--<script type="text/javascript" src="js/index.js"></script>-->
-    <script type="text/javascript" src="app.js"></script>
-
+  <!-- will be replaced with elements/elements.vulcanized.html -->
   <link rel="import" href="elements.html">
-  <link rel="stylesheet" href="app.css" shim-shadowdom>
-
-  <link rel="icon" sizes="192x192" href="img/gmail.png">
+  <!-- endreplace-->
 </head>
-<body unresolved fullbleed>
 
-<core-style id="navheaderstyle">
-  #navheader::after {
-    /* causes console warning for incorrect mimetype */
-    background-image: url({{coverImg}});
-  }
-</core-style>
+<body unresolved fullbleed layout vertical>
+  <!--<template is="auto-binding" id="app">-->
 
-<template id="t" is="auto-binding">
+    <!--<core-drawer-panel>-->
 
-<core-style ref="navheaderstyle"></core-style>
-<core-style ref="labelcolors"></core-style>
+      <!--&lt;!&ndash; Drawer &ndash;&gt;-->
+      <!--<core-header-panel drawer>-->
 
-<div id="loginscreen" layout vertical center-center fit
-     class="{{ {show: !isAuthenticated} | tokenList }}">
-  <google-signin width="wide" height="tall"
-      clientId="229000986068-hld1d9ovioamaaur218vg3jg5dgvf2a2.apps.googleusercontent.com"
-      scopes="profile email https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/gmail.modify"
-      on-google-signin-success="{{onSigninSuccess}}"
-      on-google-signin-failure="{{onSigninFailure}}"></google-signin>
-</div>
+        <!--&lt;!&ndash; Drawer Toolbar &ndash;&gt;-->
+        <!--<core-toolbar>Menu</core-toolbar>-->
 
-<material-search id="search" narrow="{{narrow}}"
-                 previousSearches="{{previousSearches}}"></material-search>
+        <!--&lt;!&ndash; Drawer Content &ndash;&gt;-->
+        <!--<core-menu selected="0">-->
+          <!--<core-item label="Yo"></core-item>-->
+          <!--<core-item label="Polymer"></core-item>-->
+          <!--<core-item label="App"></core-item>-->
+        <!--</core-menu>-->
 
-<core-drawer-panel id="drawerPanel" narrow="{{narrow}}">
+      <!--</core-header-panel>-->
 
-  <core-header-panel mode="scroll" drawer>
-    <core-toolbar id="navheader" class="tall">
-      <!-- <core-image src="{{user.cover}}" sizing="cover" preload fade
-                  style="width:400px; height:400px; background-color:#c41411;">
-      </core-image> -->
-      <img class="middle profile" src="{{user.profile}}" hidden?="{{!user.profile}}">
-      <div class="bottom" layout vertical>
-        <span>{{user.name}}</span>
-        <span>{{user.email}}</span>
-      </div>
-    </core-toolbar>
-    <core-menu selected="0" excludedLocalNames="div" on-core-select="{{menuSelect}}">
-      <paper-item><core-icon icon="inbox"></core-icon>Inbox</paper-item>
-      <paper-item><core-icon icon="social:people"></core-icon>Social</paper-item>
-      <div class="separator">All labels</div>
-      <paper-item><core-icon icon="star"></core-icon>Starred</paper-item>
-      <paper-item><core-icon icon="send"></core-icon>Sent</paper-item>
-      <paper-item><core-icon icon="mail"></core-icon>All Mail</paper-item>
-      <paper-item><core-icon icon="report"></core-icon>Spam</paper-item>
-      <paper-item><core-icon icon="delete"></core-icon>Trash</paper-item>
-      <template repeat="{{l in labels}}">
-        <paper-item class="{{l.color}}"><core-icon icon="label"></core-icon>{{l.name}}</paper-item>
-      </template>
-    </core-menu>
-  </core-header-panel>
+      <!--&lt;!&ndash; Main &ndash;&gt;-->
+      <!--<core-header-panel main>-->
 
-  <core-scroll-header-panel id="scrollheader" main condenses="{{!narrow}}" keepCondensedHeader fixed?="{{narrow}}" on-trackstart="{{onRefreshStart}}"  on-tracky="{{onMainAreaTrack}}" on-trackend="{{onRefreshUp}}">
-    <core-toolbar id="mainheader" class="{{ {tall: !narrow, 'core-narrow': narrow, 'selected-threads': selectedThreads.length} | tokenList }}">
-        <paper-icon-button icon="arrow-back" class="selected-item" on-tap="{{deselectAll}}"></paper-icon-button>
+        <!--&lt;!&ndash; Main Toolbar &ndash;&gt;-->
+        <!--<core-toolbar>-->
+          <!--<paper-icon-button icon="menu" core-drawer-toggle></paper-icon-button>-->
+          <!--<span>{{appName}}</span>-->
+        <!--</core-toolbar>-->
 
-        <paper-icon-button id="navicon" icon="menu" core-drawer-toggle></paper-icon-button>
-        <div flex></div>
-        <span class="bottom indent title">
-          {{selectedThreads.length ? selectedThreads.length : 'Inbox'}}
-        </span>
-        <paper-icon-button icon="search" class="fade-on-drawer-open" on-tap="{{toggleSearch}}"></paper-icon-button>
+        <!--&lt;!&ndash; Main Content &ndash;&gt;-->
+        <!--<div class="hero-unit">-->
+          <!--<yo-greeting></yo-greeting>-->
+          <!--<p>You now have</p>-->
+          <!--<yo-list></yo-list>-->
+        <!--</div>-->
+      <!--</core-header-panel>-->
+    <!--</core-drawer-panel>-->
 
-        <paper-icon-button icon="archive" class="selected-item" on-tap="{{archiveAll}}"></paper-icon-button>
-        <paper-icon-button icon="delete" class="selected-item"></paper-icon-button>
-        <paper-icon-button icon="mail" class="selected-item"></paper-icon-button>
+  <!--</template>-->
 
-        <paper-menu-button class="selected-item" layout horizontal>
-          <paper-icon-button icon="more-vert"></paper-icon-button>
-          <paper-dropdown class="dropdown" halign="right">
-            <paper-item>Move to</paper-item>
-            <paper-item>Change labels</paper-item>
-            <paper-item>Add star</paper-item>
-            <paper-item>Mark not important</paper-item>
-            <paper-item>Mute</paper-item>
-            <paper-item>Report spam</paper-item>
-            <paper-item>Report phishing</paper-item>
-          </paper-dropdown>
-        </paper-menu-button>
+         <style>[drawer] {
+              background-color: #B99588;
+              border-right: 1px solid #ccc;
+              }
 
-        <div id="refresh" class="bottom fit"
-             layout horizontal center-center on-transitionend="{{onRefreshTransitionEnd}}">
-          <div class="paper-shadow-bottom-z-1">
-            <paper-spinner id="refreshspinner"></paper-spinner>
-          </div>
-        </div>
+              [main] {
+              background-color: #4F7DC9;
+              }
 
-    </core-toolbar>
-    <div content on-thread-archive="{{onThreadArchive}}">
+              button {
+              width: 160px;
+              height: 40px;
+              font-size: 16px;
+              margin: 8px;
+              }</style>
 
-      <template if="{{!threads.length && isAuthenticated}}">
-        <div layout vertical center-center style="height:100%">
-          <paper-spinner active></paper-spinner>
-        </div>
-      </template>
+          <script>
 
-      <!--<core-list data="{{data}}" height="80">-->
-      <!-- TODO: don't pass all messages, users, labels into mail-thread -->
-      <core-selector id="threadlist" multi selectedAttribute="selected"
-                     selected="{{selectedThreads}}">
-        <template repeat="{{t, i in threads}}">
-            <mail-thread messages="{{t.messages}}"
-                         labels="{{labelMap}}" users="{{users}}"
-                         narrow="{{narrow}}"
-                         on-transitionend="{{onTransitionEnd}}"
-                         touch-action="{{touchAction}}"></mail-thread>
-        </template>
-      </core-selector>
-      <!--</core-list>-->
+                function searchTheMap(){
+                    //debugger;
+                    document.querySelector('::shadow google-map-search').query = widlist.supermodel.screen2.destinationname;
+                    document.querySelector('::shadow google-map-search').search();
+                    var results = document.querySelector('::shadow google-map-search').result;
+                    console.log(results)
+                    if(results && results.latitude && results.longitude){
+                        var map = document.querySelector('::shadow google-map');
+                        map.latitude = results.latitude;
+                        map.longitude = results.longitude;
+                        var mapmarkerMarkup = '<google-map-marker latitude="'+results.latitude+'" longitude="'+results.latitude+'" title="Go Giants!"></google-map-marker>';
+                        //map.innerHTML += mapmarkerMarkup;
+                        widlist.injectBoundHTML(map.innerHTML + mapmarkerMarkup,document.querySelector('::shadow google-map'));
 
-     </div>
-  </core-scroll-header-panel>
+                        map.updateMarkers();
+//                    document.querySelector('::shadow google-map-marker').latitude = results.latitude;
+//                    document.querySelector('::shadow google-map-marker').longitude = results.longitude;
+                    }
 
-</core-drawer-panel>
+                }
 
-<paper-toast id="toast" duration="10000" swipeDisabled
-             text="{{toastMessage}}" opened="{{toastOpened}}"
-             on-core-overlay-open="{{onToastOpenClose}}">
-  <div on-tap="{{undoAll}}">Undo</div>
-</paper-toast>
+            </script>
 
-<paper-fab id="fab" icon="create" on-tap="{{newMail}}"></paper-fab>
 
-<!-- Cache data requests. -->
-<!--<core-localstorage name="polymer-mail-user" value="{{user}}"></core-localstorage>-->
-<!--<core-localstorage name="polymer-mail-labels" value="{{labels}}"></core-localstorage>-->
-<!--<core-localstorage name="polymer-mail-threads" value="{{threads}}"></core-localstorage>-->
-<!--<core-localstorage name="polymer-mail-users" value="{{users}}"></core-localstorage>-->
+          <core-drawer-panel touch-action="">
+              <!-- side namebar section -->
+              <core-header-panel mode="waterfall" flex="" drawer="">
+                  <core-toolbar>HopmeIn</core-toolbar>
+                  <core-menu fit>
+                      <paper-input floatingLabel='true' label='Checking In'   id='checkindate' style='width: 100px' value="{{supermodel.availability_form_data.checkindate}}"></paper-input>
+                      <paper-input floatingLabel='true' label='Checking Out'   id='checkoutdate' style='width: 100px'      value="{{supermodel.availability_form_data.checkoutdate}}"></paper-input>
+                      <paper-input floatingLabel='true' label='Guests Count' id='noofguests' style='width: 100px'     value="{{supermodel.availability_form_data.noofguests}}"></paper-input>
+                      <paper-input floatingLabel='true' label='Type Of Room'   id='typeofroom' style='width: 100px'      value="{{supermodel.availability_form_data.typeofroom}}"></paper-input>
+                      <br>
+                      <paper-button raised onclick='callExecute({"executethis": "screen1"})'>Login</paper-button>
 
-</template>
+                      <paper-input label="Destination" value="{{supermodel.screen2.destinationname}}"></paper-input>
+                      <paper-button raised onclick='searchTheMap()'>Proceed</paper-button>
+                  </core-menu>
+              </core-header-panel>
+              <!-- side namebar section -->
+              <core-header-panel main>
+                  <!--header section -->
+                  <core-toolbar>
+                      <core-icon-button icon="menu" core-drawer-toggle=""></core-icon-button>
+                      <paper-icon-button icon="favorite" role="button" tabindex="0"
+                                         aria-label="favorite"></paper-icon-button>
+                      <paper-icon-button icon="search" role="button" tabindex="0"
+                                         aria-label="search"></paper-icon-button>
+                  </core-toolbar>
 
-<script src="app.js"></script>
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', 'UA-56540783-1', 'auto');
-  ga('send', 'pageview');
-</script>
+
+                  <!--header section -->
+                  <div style="height:100vh;">
+                      <style>
+                          google-map {
+                          height: 600px;
+                          }
+                      </style>
+                      <div>Hope you find a  ...  <p>{{supermodel.screen2.destinationname}}</p></div>
+                      <google-map-search map="{{map1}}" query="{{supermodel.screen2.destinationname}}" result="{{result}}" google-map-search-result="refreshMap()"></google-map-search>&ndash;&gt;
+                      &lt;!&ndash;<google-map map="{{map1}}" latitude="37.779" longitude="-122.3892" minzoom="9" maxzoom="11" fit="" libraries="geometry,places">&ndash;&gt;
+                      &lt;!&ndash;</google-map>
+                  </div>
+              </core-header-panel>
+          </core-drawer-panel>
+
+
+              <!-- build:js scripts/app.js -->
+  <!--<script src="scripts/app.js"></script>-->
+  <!-- endbuild-->
 </body>
+
 </html>
